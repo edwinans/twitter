@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 ## Project
 
@@ -60,6 +60,8 @@ Optimize for low token usage. Be concise. Avoid long explanations unless I ask.
 ## Code Style
 
 Use TypeScript best practices.
+Format codes with 2 spaces.
+Always add @types dependencies when adding a dep.
 
 Prefer:
 
