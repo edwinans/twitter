@@ -1,5 +1,14 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { register, login, setToken, clearToken, type User } from '../lib/api';
+import {
+  register,
+  login,
+  setToken,
+  clearToken,
+  setStoredUser,
+  getStoredUser,
+  clearStoredUser,
+  type User,
+} from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -12,23 +21,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => getStoredUser());
 
   const handleLogin = async (email: string, password: string) => {
     const response = await login(email, password);
     setUser(response.user);
     setToken(response.token);
+    setStoredUser(response.user);
   };
 
   const handleRegister = async (username: string, password: string) => {
     const response = await register(username, password);
     setUser(response.user);
     setToken(response.token);
+    setStoredUser(response.user);
   };
 
   const handleLogout = () => {
     setUser(null);
     clearToken();
+    clearStoredUser();
   };
 
   return (

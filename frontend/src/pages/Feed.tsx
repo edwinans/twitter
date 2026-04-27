@@ -22,7 +22,7 @@ export function Feed() {
         </div>
       </div>
       <div style={styles.content}>
-        <p>Feed coming soon...</p>
+        <p>No feed yet...</p>
       </div>
     </div>
   );

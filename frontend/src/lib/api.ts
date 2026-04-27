@@ -55,3 +55,27 @@ export function getToken(): string | null {
 export function clearToken() {
   localStorage.removeItem('token');
 }
+
+const USER_KEY = 'user';
+
+export function setStoredUser(user: User) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function getStoredUser(): User | null {
+  const value = localStorage.getItem(USER_KEY);
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as User;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
+}
+
+export function clearStoredUser() {
+  localStorage.removeItem(USER_KEY);
+}
