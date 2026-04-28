@@ -12,6 +12,7 @@ interface TweetTimelineProps {
   loadingMessage: string;
   emptyMessage: string;
   sentinelRef: RefObject<HTMLDivElement | null>;
+  tweetVariant?: 'primary' | 'secondary';
 }
 
 export function TweetTimeline({
@@ -23,6 +24,7 @@ export function TweetTimeline({
   loadingMessage,
   emptyMessage,
   sentinelRef,
+  tweetVariant = 'primary',
 }: TweetTimelineProps) {
   if (isLoading) {
     return <p>{loadingMessage}</p>;
@@ -36,7 +38,7 @@ export function TweetTimeline({
     <>
       <div style={tweetPageStyles.timeline}>
         {tweets.map((tweet) => (
-          <TweetCard key={tweet.id} tweet={tweet} />
+          <TweetCard key={tweet.id} tweet={tweet} variant={tweetVariant} />
         ))}
       </div>
       {isLoadingMore && <p style={tweetPageStyles.loadingMore}>Loading more...</p>}

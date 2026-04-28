@@ -50,6 +50,7 @@ export class UsersController {
 
     const where: Prisma.TweetWhereInput = {
       authorId: user.id,
+      parentTweetId: null,
     };
 
     const [total, tweets] = await this.prisma.$transaction([

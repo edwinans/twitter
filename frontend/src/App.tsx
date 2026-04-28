@@ -5,6 +5,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Feed } from './pages/Feed';
 import { Profile } from './pages/Profile';
+import { TweetDetail } from './pages/TweetDetail';
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tweet/:id"
+            element={
+              <ProtectedRoute>
+                <TweetDetail />
               </ProtectedRoute>
             }
           />

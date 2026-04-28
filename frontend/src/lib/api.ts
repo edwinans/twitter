@@ -39,6 +39,14 @@ export interface PaginatedTweetsResponse {
   totalPages: number;
 }
 
+export interface PaginatedTweetRepliesResponse {
+  tweets: Tweet[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface ProfileTweetsResponse {
   user: ProfileUser;
   tweets: Tweet[];
@@ -125,17 +133,65 @@ export async function getFeedTweets(
 }
 
 export async function createTweet(content: string): Promise<Tweet> {
+  return createTweetWithParent(content);
+}
+
+export async function createReply(
+  content: string,
+  parentTweetId: string
+): Promise<Tweet> {
+  return createTweetWithParent(content, parentTweetId);
+}
+
+async function createTweetWithParent(
+  content: string,
+  parentTweetId?: string
+): Promise<Tweet> {
   const response = await fetch(`${API_BASE}/tweets`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeaders(),
     },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({
+      content,
+      ...(parentTweetId ? { parentTweetId } : {}),
+    }),
   });
 
   if (!response.ok) {
     throw new Error('Failed to create tweet');
+  }
+
+  return response.json();
+}
+
+export async function getTweetById(tweetId: string): Promise<Tweet> {
+  const response = await fetch(`${API_BASE}/tweets/${encodeURIComponent(tweetId)}`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load tweet');
+  }
+
+  return response.json();
+}
+
+export async function getTweetReplies(
+  tweetId: string,
+  page = 1,
+  limit = 20
+): Promise<PaginatedTweetRepliesResponse> {
+  const response = await fetch(
+    `${API_BASE}/tweets/${encodeURIComponent(tweetId)}/replies?page=${page}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load replies');
   }
 
   return response.json();
