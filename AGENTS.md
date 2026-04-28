@@ -23,6 +23,7 @@ Build only these core features:
 - Simple JWT access-token authentication
 - Logout by deleting the token on the frontend
 - Create tweets
+- User profile with its tweets
 - Follow and unfollow users
 - Reply to tweets
 - Like and unlike tweets

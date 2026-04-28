@@ -11,4 +11,20 @@ model User {
   username     String    @unique
   passwordHash String
   createdAt    DateTime  @default(now())
+  tweets       Tweet[]
+}
+
+model Tweet {
+  id            String   @id @default(uuid())
+  content       String
+  authorId      String
+  parentTweetId String?
+  createdAt     DateTime @default(now())
+
+  author       User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentTweet  Tweet?  @relation("TweetReplies", fields: [parentTweetId], references: [id], onDelete: Cascade)
+  replies      Tweet[] @relation("TweetReplies")
+
+  @@index([authorId, createdAt])
+  @@index([parentTweetId])
 }

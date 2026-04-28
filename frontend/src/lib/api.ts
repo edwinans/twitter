@@ -5,6 +5,10 @@ export interface User {
   username: string;
 }
 
+export interface ProfileUser extends User {
+  createdAt: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: User;
@@ -12,6 +16,36 @@ export interface AuthResponse {
 
 export interface MeResponse {
   user: User;
+}
+
+export interface TweetAuthor {
+  id: string;
+  username: string;
+}
+
+export interface Tweet {
+  id: string;
+  content: string;
+  parentTweetId: string | null;
+  createdAt: string;
+  author: TweetAuthor;
+}
+
+export interface PaginatedTweetsResponse {
+  tweets: Tweet[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ProfileTweetsResponse {
+  user: ProfileUser;
+  tweets: Tweet[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 function getAuthHeaders(): HeadersInit {
@@ -72,6 +106,60 @@ export async function me(): Promise<MeResponse> {
   return response.json();
 }
 
+export async function getFeedTweets(
+  page = 1,
+  limit = 20
+): Promise<PaginatedTweetsResponse> {
+  const response = await fetch(
+    `${API_BASE}/tweets?page=${page}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load feed');
+  }
+
+  return response.json();
+}
+
+export async function createTweet(content: string): Promise<Tweet> {
+  const response = await fetch(`${API_BASE}/tweets`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ content }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create tweet');
+  }
+
+  return response.json();
+}
+
+export async function getUserTweets(
+  username: string,
+  page = 1,
+  limit = 10
+): Promise<ProfileTweetsResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${encodeURIComponent(username)}/tweets?page=${page}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load profile');
+  }
+
+  return response.json();
+}
+
 export function setToken(token: string) {
   localStorage.setItem('token', token);
 }
@@ -82,28 +170,4 @@ export function getToken(): string | null {
 
 export function clearToken() {
   localStorage.removeItem('token');
-}
-
-const USER_KEY = 'user';
-
-export function setStoredUser(user: User) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-export function getStoredUser(): User | null {
-  const value = localStorage.getItem(USER_KEY);
-  if (!value) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(value) as User;
-  } catch {
-    localStorage.removeItem(USER_KEY);
-    return null;
-  }
-}
-
-export function clearStoredUser() {
-  localStorage.removeItem(USER_KEY);
 }

@@ -1,27 +1,42 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type SyntheticEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { createTweet, getFeedTweets, type Tweet } from '../lib/api';
+import { getUserTweets, type ProfileUser, type Tweet } from '../lib/api';
 import { TweetCard } from '../components/TweetCard';
 
-export function Feed() {
-  const { user, logout } = useAuth();
+export function Profile() {
+  const { username } = useParams();
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [user, setUser] = useState<ProfileUser | null>(null);
   const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [content, setContent] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    setPage(1);
+    setTweets([]);
+    setTotalPages(1);
+    setError('');
+    setIsLoading(true);
+    setIsLoadingMore(false);
+    setHasMore(true);
+    setUser(null);
+  }, [username]);
+
+  useEffect(() => {
+    if (!username) {
+      return;
+    }
+
     let isMounted = true;
 
-    const loadTweets = async () => {
+    const loadProfile = async () => {
       setError('');
 
       if (page === 1) {
@@ -31,22 +46,23 @@ export function Feed() {
       }
 
       try {
-        const response = await getFeedTweets(page);
+        const response = await getUserTweets(username, page);
         if (!isMounted) {
           return;
         }
 
+        setUser(response.user);
+        setTotalPages(response.totalPages);
+        setHasMore(page < response.totalPages && response.tweets.length > 0);
         setTweets((currentTweets) =>
           page === 1 ? response.tweets : [...currentTweets, ...response.tweets]
         );
-        setTotalPages(response.totalPages);
-        setHasMore(page < response.totalPages && response.tweets.length > 0);
       } catch {
         if (!isMounted) {
           return;
         }
 
-        setError('Failed to load tweets');
+        setError('Failed to load profile');
       } finally {
         if (isMounted) {
           if (page === 1) {
@@ -58,12 +74,12 @@ export function Feed() {
       }
     };
 
-    void loadTweets();
+    void loadProfile();
 
     return () => {
       isMounted = false;
     };
-  }, [page]);
+  }, [username, page]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -97,80 +113,30 @@ export function Feed() {
     navigate('/login');
   };
 
-  const submitTweet = async () => {
-    const trimmedContent = content.trim();
-    if (!trimmedContent) {
-      return;
-    }
-
-    setError('');
-    setIsSubmitting(true);
-
-    try {
-      const tweet = await createTweet(trimmedContent);
-      setTweets((currentTweets) => [tweet, ...currentTweets]);
-      setContent('');
-    } catch {
-      setError('Failed to create tweet');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await submitTweet();
-  };
-
-  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) {
-      return;
-    }
-
-    event.preventDefault();
-    void submitTweet();
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <h1 style={styles.title}>Feed</h1>
-          <p style={styles.subtitle}>Welcome, {user?.username}</p>
-        </div>
-        <div style={styles.userInfo}>
-          <Link to={`/profile/${user?.username}`} style={styles.profileLink}>
-            My profile
+          <Link to="/feed" style={styles.backLink}>
+            Back to feed
           </Link>
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
+          <h1 style={styles.title}>@{username}</h1>
+          {user && (
+            <p style={styles.subtitle}>
+              Joined {new Date(user.createdAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
+        <button onClick={handleLogout} style={styles.logoutButton}>
+          Logout
+        </button>
       </div>
 
       <div style={styles.content}>
-        <form onSubmit={handleSubmit} style={styles.composer}>
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            onKeyDown={handleComposerKeyDown}
-            placeholder="What's happening?"
-            style={styles.textarea}
-            maxLength={280}
-            rows={4}
-          />
-          <div style={styles.composerFooter}>
-            <span style={styles.counter}>{content.length}/280</span>
-            <button type="submit" style={styles.postButton} disabled={isSubmitting}>
-              Post
-            </button>
-          </div>
-        </form>
-
         {error && <div style={styles.error}>{error}</div>}
 
         {isLoading ? (
-          <p>Loading tweets...</p>
+          <p>Loading profile...</p>
         ) : tweets.length === 0 ? (
           <p>No tweets yet.</p>
         ) : (
@@ -199,26 +165,22 @@ const styles = {
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: '1rem',
     padding: '1rem 2rem',
     borderBottom: '1px solid #333',
   },
   title: {
-    margin: 0,
+    margin: '0.5rem 0 0',
   },
   subtitle: {
     margin: '0.25rem 0 0',
     color: '#a0a0a0',
   },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  profileLink: {
+  backLink: {
     color: '#1d9bf0',
     textDecoration: 'none',
+    fontSize: '0.95rem',
   },
   logoutButton: {
     padding: '0.5rem 1rem',
@@ -233,45 +195,6 @@ const styles = {
     maxWidth: '720px',
     margin: '0 auto',
     width: '100%',
-  },
-  composer: {
-    display: 'grid',
-    gap: '0.75rem',
-    padding: '1rem',
-    border: '1px solid #333',
-    borderRadius: '1rem',
-    backgroundColor: '#202020',
-    marginBottom: '1.5rem',
-  },
-  textarea: {
-    width: '100%',
-    resize: 'vertical' as const,
-    minHeight: '110px',
-    padding: '0.875rem',
-    borderRadius: '0.75rem',
-    border: '1px solid #3a3a3a',
-    backgroundColor: '#151515',
-    color: '#ffffff',
-    fontSize: '1rem',
-  },
-  composerFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  counter: {
-    color: '#a0a0a0',
-    fontSize: '0.875rem',
-  },
-  postButton: {
-    padding: '0.65rem 1.2rem',
-    backgroundColor: '#1d9bf0',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '9999px',
-    cursor: 'pointer',
-    fontWeight: 'bold' as const,
   },
   error: {
     color: '#f4212e',
