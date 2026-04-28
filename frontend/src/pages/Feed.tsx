@@ -1,96 +1,37 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type SyntheticEvent } from 'react';
+import { type KeyboardEvent, type SyntheticEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { createTweet, getFeedTweets, type Tweet } from '../lib/api';
-import { TweetCard } from '../components/TweetCard';
+import { TweetTimeline } from '../components/TweetTimeline';
+import { useInfinitePagination } from '../hooks/useInfinitePagination';
+import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
 
 export function Feed() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [tweets, setTweets] = useState<Tweet[]>([]);
   const [content, setContent] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadTweets = async () => {
-      setError('');
-
-      if (page === 1) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-
-      try {
-        const response = await getFeedTweets(page);
-        if (!isMounted) {
-          return;
-        }
-
-        setTweets((currentTweets) =>
-          page === 1 ? response.tweets : [...currentTweets, ...response.tweets]
-        );
-        setTotalPages(response.totalPages);
-        setHasMore(page < response.totalPages && response.tweets.length > 0);
-      } catch {
-        if (!isMounted) {
-          return;
-        }
-
-        setError('Failed to load tweets');
-      } finally {
-        if (isMounted) {
-          if (page === 1) {
-            setIsLoading(false);
-          } else {
-            setIsLoadingMore(false);
-          }
-        }
-      }
-    };
-
-    void loadTweets();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [page]);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel || !hasMore || isLoading || isLoadingMore) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry?.isIntersecting && hasMore && !isLoading && !isLoadingMore) {
-          setPage((currentPage) => currentPage + 1);
-        }
-      },
-      {
-        root: null,
-        rootMargin: '200px',
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(sentinel);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasMore, isLoading, isLoadingMore]);
+  const {
+    items: tweets,
+    error,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    totalPages,
+    sentinelRef,
+    prependItem,
+    setError,
+  } = useInfinitePagination<Tweet>({
+    resetKey: 'feed',
+    errorMessage: 'Failed to load tweets',
+    loadPage: async (page) => {
+      const response = await getFeedTweets(page);
+      return {
+        items: response.tweets,
+        totalPages: response.totalPages,
+      };
+    },
+  });
 
   const handleLogout = () => {
     logout();
@@ -108,7 +49,7 @@ export function Feed() {
 
     try {
       const tweet = await createTweet(trimmedContent);
-      setTweets((currentTweets) => [tweet, ...currentTweets]);
+      prependItem(tweet);
       setContent('');
     } catch {
       setError('Failed to create tweet');
@@ -169,40 +110,25 @@ export function Feed() {
 
         {error && <div style={styles.error}>{error}</div>}
 
-        {isLoading ? (
-          <p>Loading tweets...</p>
-        ) : tweets.length === 0 ? (
-          <p>No tweets yet.</p>
-        ) : (
-          <>
-            <div style={styles.timeline}>
-              {tweets.map((tweet) => (
-                <TweetCard key={tweet.id} tweet={tweet} />
-              ))}
-            </div>
-            {isLoadingMore && <p style={styles.loadingMore}>Loading more...</p>}
-            {hasMore && <div ref={sentinelRef} style={styles.sentinel} />}
-            {!hasMore && totalPages > 1 && <p style={styles.endMessage}>No more tweets.</p>}
-          </>
-        )}
+        <TweetTimeline
+          tweets={tweets}
+          isLoading={isLoading}
+          isLoadingMore={isLoadingMore}
+          hasMore={hasMore}
+          totalPages={totalPages}
+          loadingMessage="Loading tweets..."
+          emptyMessage="No tweets yet."
+          sentinelRef={sentinelRef}
+        />
       </div>
     </div>
   );
 }
 
 const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#1a1a1a',
-    color: '#ffffff',
-  },
   header: {
-    display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: '1rem',
-    padding: '1rem 2rem',
-    borderBottom: '1px solid #333',
+    ...tweetPageStyles.header,
   },
   title: {
     margin: 0,
@@ -217,23 +143,11 @@ const styles = {
     gap: '1rem',
   },
   profileLink: {
-    color: '#1d9bf0',
-    textDecoration: 'none',
+    ...tweetPageLinkStyles,
   },
-  logoutButton: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#1d9bf0',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '9999px',
-    cursor: 'pointer',
-  },
-  content: {
-    padding: '2rem',
-    maxWidth: '720px',
-    margin: '0 auto',
-    width: '100%',
-  },
+  container: tweetPageStyles.container,
+  logoutButton: tweetPageStyles.logoutButton,
+  content: tweetPageStyles.content,
   composer: {
     display: 'grid',
     gap: '0.75rem',
@@ -273,25 +187,5 @@ const styles = {
     cursor: 'pointer',
     fontWeight: 'bold' as const,
   },
-  error: {
-    color: '#f4212e',
-    marginBottom: '1rem',
-  },
-  timeline: {
-    display: 'grid',
-    gap: '1rem',
-  },
-  loadingMore: {
-    marginTop: '1rem',
-    color: '#a0a0a0',
-    textAlign: 'center' as const,
-  },
-  sentinel: {
-    height: '1px',
-  },
-  endMessage: {
-    marginTop: '1rem',
-    color: '#a0a0a0',
-    textAlign: 'center' as const,
-  },
+  error: tweetPageStyles.error,
 };
