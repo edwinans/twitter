@@ -100,6 +100,7 @@ const styles = {
   backLink: {
     ...tweetPageLinkStyles,
     fontSize: '0.95rem',
+    display: 'inline-block',
   },
   container: tweetPageStyles.container,
   logoutButton: tweetPageStyles.logoutButton,

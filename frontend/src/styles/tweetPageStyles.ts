@@ -5,19 +5,23 @@ export const tweetPageStyles = {
     minHeight: '100vh',
     backgroundColor: '#1a1a1a',
     color: '#ffffff',
+    overflowX: 'hidden',
   } satisfies CSSProperties,
   header: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: '1rem',
-    padding: '1rem 2rem',
+    padding: '1rem clamp(1rem, 4vw, 2rem)',
     borderBottom: '1px solid #333',
   } satisfies CSSProperties,
   content: {
-    padding: '2rem',
+    padding: 'clamp(1rem, 4vw, 2rem)',
     maxWidth: '720px',
     margin: '0 auto',
     width: '100%',
+    boxSizing: 'border-box',
   } satisfies CSSProperties,
   error: {
     color: '#f4212e',
@@ -39,6 +43,7 @@ export const tweetPageStyles = {
     marginTop: '1rem',
     color: '#a0a0a0',
     textAlign: 'center',
+    fontSize: '0.95rem',
   } satisfies CSSProperties,
   sentinel: {
     height: '1px',
@@ -47,6 +52,7 @@ export const tweetPageStyles = {
     marginTop: '1rem',
     color: '#a0a0a0',
     textAlign: 'center',
+    fontSize: '0.95rem',
   } satisfies CSSProperties,
 } as const;
 

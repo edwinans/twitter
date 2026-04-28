@@ -127,8 +127,8 @@ export function Feed() {
 
 const styles = {
   header: {
-    alignItems: 'center',
     ...tweetPageStyles.header,
+    alignItems: 'center',
   },
   title: {
     margin: 0,
@@ -140,8 +140,9 @@ const styles = {
   userInfo: {
     display: 'flex',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: '1rem',
-  },
+  } as const,
   profileLink: {
     ...tweetPageLinkStyles,
   },
@@ -156,9 +157,14 @@ const styles = {
     borderRadius: '1rem',
     backgroundColor: '#202020',
     marginBottom: '1.5rem',
-  },
+    boxSizing: 'border-box' as const,
+    width: '100%',
+  } as const,
   textarea: {
     width: '100%',
+    boxSizing: 'border-box' as const,
+    display: 'block',
+    minWidth: 0,
     resize: 'vertical' as const,
     minHeight: '110px',
     padding: '0.875rem',
@@ -167,17 +173,19 @@ const styles = {
     backgroundColor: '#151515',
     color: '#ffffff',
     fontSize: '1rem',
-  },
+    lineHeight: 1.5,
+  } as const,
   composerFooter: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: '1rem',
-  },
+    flexWrap: 'wrap',
+  } as const,
   counter: {
     color: '#a0a0a0',
     fontSize: '0.875rem',
-  },
+  } as const,
   postButton: {
     padding: '0.65rem 1.2rem',
     backgroundColor: '#1d9bf0',
@@ -186,6 +194,6 @@ const styles = {
     borderRadius: '9999px',
     cursor: 'pointer',
     fontWeight: 'bold' as const,
-  },
+  } as const,
   error: tweetPageStyles.error,
 };
