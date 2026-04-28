@@ -10,6 +10,22 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface MeResponse {
+  user: User;
+}
+
+function getAuthHeaders(): HeadersInit {
+  const token = getToken();
+
+  if (!token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function register(
   username: string,
   password: string
@@ -39,6 +55,18 @@ export async function login(
 
   if (!response.ok) {
     throw new Error('Login failed');
+  }
+
+  return response.json();
+}
+
+export async function me(): Promise<MeResponse> {
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load current user');
   }
 
   return response.json();
