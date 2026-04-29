@@ -5,6 +5,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Feed } from './pages/Feed';
 import { Profile } from './pages/Profile';
+import { ProfileRelationships } from './pages/ProfileRelationships';
 import { TweetDetail } from './pages/TweetDetail';
 
 function App() {
@@ -27,6 +28,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:username/followers"
+            element={
+              <ProtectedRoute>
+                <ProfileRelationships kind="followers" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:username/following"
+            element={
+              <ProtectedRoute>
+                <ProfileRelationships kind="following" />
               </ProtectedRoute>
             }
           />

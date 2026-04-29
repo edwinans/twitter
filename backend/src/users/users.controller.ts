@@ -1,76 +1,67 @@
-import { Controller, Get, NotFoundException, Param, Query, UseGuards } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Controller, Get, Param, Post, Query, Delete, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { PrismaService } from '../prisma/prisma.service';
+import type { Request } from 'express';
+import { UsersService } from './users.service';
 
-const userSelect = {
-  id: true,
-  username: true,
-  createdAt: true,
-} as const;
+interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    username: string;
+  };
+}
 
-const tweetAuthorSelect = {
-  id: true,
-  username: true,
-} as const;
-
-const tweetSelect = {
-  id: true,
-  content: true,
-  parentTweetId: true,
-  createdAt: true,
-  author: {
-    select: tweetAuthorSelect,
-  },
-} as const;
+function parsePageLimit(pageQuery?: string, limitQuery?: string, defaultLimit = 10) {
+  return {
+    page: Number(pageQuery) || 1,
+    limit: Number(limitQuery) || defaultLimit,
+  };
+}
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private usersService: UsersService) {}
 
   @Get(':username/tweets')
   async getUserTweets(
+    @Req() req: RequestWithUser,
     @Param('username') username: string,
     @Query('page') pageQuery?: string,
     @Query('limit') limitQuery?: string,
   ) {
-    const page = Number(pageQuery) || 1;
-    const limit = Number(limitQuery) || 10;
-    const skip = (page - 1) * limit;
+    const { page, limit } = parsePageLimit(pageQuery, limitQuery);
+    return this.usersService.getUserTweets(req.user.id, username, page, limit);
+  }
 
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: userSelect,
-    });
+  @Get(':username/followers')
+  async getFollowers(
+    @Req() req: RequestWithUser,
+    @Param('username') username: string,
+    @Query('page') pageQuery?: string,
+    @Query('limit') limitQuery?: string,
+  ) {
+    const { page, limit } = parsePageLimit(pageQuery, limitQuery);
+    return this.usersService.getFollowers(req.user.id, username, page, limit);
+  }
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  @Get(':username/following')
+  async getFollowing(
+    @Req() req: RequestWithUser,
+    @Param('username') username: string,
+    @Query('page') pageQuery?: string,
+    @Query('limit') limitQuery?: string,
+  ) {
+    const { page, limit } = parsePageLimit(pageQuery, limitQuery);
+    return this.usersService.getFollowing(req.user.id, username, page, limit);
+  }
 
-    const where: Prisma.TweetWhereInput = {
-      authorId: user.id,
-      parentTweetId: null,
-    };
+  @Post(':username/follow')
+  followUser(@Req() req: RequestWithUser, @Param('username') username: string) {
+    return this.usersService.followUser(req.user.id, username);
+  }
 
-    const [total, tweets] = await this.prisma.$transaction([
-      this.prisma.tweet.count({ where }),
-      this.prisma.tweet.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-        select: tweetSelect,
-      }),
-    ]);
-
-    return {
-      user,
-      tweets,
-      page,
-      limit,
-      total,
-      totalPages: Math.max(1, Math.ceil(total / limit)),
-    };
+  @Delete(':username/follow')
+  unfollowUser(@Req() req: RequestWithUser, @Param('username') username: string) {
+    return this.usersService.unfollowUser(req.user.id, username);
   }
 }

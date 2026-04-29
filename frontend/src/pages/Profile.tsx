@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserTweets, type ProfileUser, type Tweet } from '../lib/api';
+import {
+  followUser,
+  getUserTweets,
+  unfollowUser,
+  type ProfileUser,
+  type Tweet,
+} from '../lib/api';
 import { TweetTimeline } from '../components/TweetTimeline';
 import { useInfinitePagination } from '../hooks/useInfinitePagination';
 import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
@@ -11,6 +17,7 @@ export function Profile() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [user, setUser] = useState<ProfileUser | null>(null);
+  const [followError, setFollowError] = useState('');
   const {
     items: tweets,
     error,
@@ -41,11 +48,41 @@ export function Profile() {
 
   useEffect(() => {
     setUser(null);
+    setFollowError('');
   }, [username]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleFollowToggle = async () => {
+    if (!username || !user || user.isOwnProfile) {
+      return;
+    }
+
+    const previousUser = user;
+    const nextIsFollowing = !user.isFollowing;
+
+    setFollowError('');
+    setUser({
+      ...user,
+      isFollowing: nextIsFollowing,
+      followerCount: nextIsFollowing
+        ? user.followerCount + 1
+        : Math.max(0, user.followerCount - 1),
+    });
+
+    try {
+      const response = previousUser.isFollowing
+        ? await unfollowUser(username)
+        : await followUser(username);
+
+      setUser(response.user);
+    } catch {
+      setUser(previousUser);
+      setFollowError(previousUser.isFollowing ? 'Failed to unfollow user' : 'Failed to follow user');
+    }
   };
 
   return (
@@ -61,14 +98,32 @@ export function Profile() {
               Joined {new Date(user.createdAt).toLocaleDateString()}
             </p>
           )}
+          {user && (
+            <div style={styles.stats}>
+              <Link to={`/profile/${username}/followers`} style={styles.statLink}>
+                <strong>{user.followerCount}</strong> Followers
+              </Link>
+              <Link to={`/profile/${username}/following`} style={styles.statLink}>
+                <strong>{user.followingCount}</strong> Following
+              </Link>
+              {!user.isOwnProfile && (
+                <button onClick={handleFollowToggle} style={styles.followButton}>
+                  {user.isFollowing ? 'Unfollow' : 'Follow'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        <button onClick={handleLogout} style={styles.logoutButton}>
-          Logout
-        </button>
+        <div style={styles.actions}>
+          <button onClick={handleLogout} style={styles.logoutButton}>
+            Logout
+          </button>
+        </div>
       </div>
 
       <div style={styles.content}>
         {error && <div style={styles.error}>{error}</div>}
+        {followError && <div style={styles.error}>{followError}</div>}
 
         <TweetTimeline
           tweets={tweets}
@@ -93,9 +148,34 @@ const styles = {
   title: {
     margin: '0.5rem 0 0',
   },
+  stats: {
+    display: 'flex',
+    gap: '1rem',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    marginTop: '0.75rem',
+  } as const,
+  statLink: {
+    ...tweetPageLinkStyles,
+    display: 'inline-flex',
+    gap: '0.35rem',
+    alignItems: 'baseline',
+  },
   subtitle: {
     margin: '0.25rem 0 0',
     color: '#a0a0a0',
+  },
+  actions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+  } as const,
+  followButton: {
+    ...tweetPageStyles.logoutButton,
+    display: 'inline-flex',
+    alignItems: 'center',
+    lineHeight: 1,
   },
   backLink: {
     ...tweetPageLinkStyles,

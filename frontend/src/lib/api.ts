@@ -7,6 +7,10 @@ export interface User {
 
 export interface ProfileUser extends User {
   createdAt: string;
+  followerCount: number;
+  followingCount: number;
+  isFollowing: boolean;
+  isOwnProfile: boolean;
 }
 
 export interface AuthResponse {
@@ -54,6 +58,19 @@ export interface ProfileTweetsResponse {
   limit: number;
   total: number;
   totalPages: number;
+}
+
+export interface ProfileUserListResponse {
+  user: ProfileUser;
+  users: User[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface FollowResponse {
+  user: ProfileUser;
 }
 
 function getAuthHeaders(): HeadersInit {
@@ -211,6 +228,76 @@ export async function getUserTweets(
 
   if (!response.ok) {
     throw new Error('Failed to load profile');
+  }
+
+  return response.json();
+}
+
+export async function getUserFollowers(
+  username: string,
+  page = 1,
+  limit = 10
+): Promise<ProfileUserListResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${encodeURIComponent(username)}/followers?page=${page}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load followers');
+  }
+
+  return response.json();
+}
+
+export async function getUserFollowing(
+  username: string,
+  page = 1,
+  limit = 10
+): Promise<ProfileUserListResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${encodeURIComponent(username)}/following?page=${page}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to load following');
+  }
+
+  return response.json();
+}
+
+export async function followUser(username: string): Promise<FollowResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${encodeURIComponent(username)}/follow`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to follow user');
+  }
+
+  return response.json();
+}
+
+export async function unfollowUser(username: string): Promise<FollowResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${encodeURIComponent(username)}/follow`,
+    {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to unfollow user');
   }
 
   return response.json();

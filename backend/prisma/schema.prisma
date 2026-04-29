@@ -12,6 +12,8 @@ model User {
   passwordHash String
   createdAt    DateTime  @default(now())
   tweets       Tweet[]
+  followers    Follow[]  @relation("UserFollowers")
+  following    Follow[]  @relation("UserFollowing")
 }
 
 model Tweet {
@@ -27,4 +29,17 @@ model Tweet {
 
   @@index([authorId, createdAt])
   @@index([parentTweetId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
