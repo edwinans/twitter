@@ -69,6 +69,10 @@ export interface ProfileUserListResponse {
   totalPages: number;
 }
 
+export interface UsersResponse {
+  users: User[];
+}
+
 export interface FollowResponse {
   user: ProfileUser;
 }
@@ -266,6 +270,18 @@ export async function getUserFollowing(
 
   if (!response.ok) {
     throw new Error('Failed to load following');
+  }
+
+  return response.json();
+}
+
+export async function getUsers(): Promise<UsersResponse> {
+  const response = await fetch(`${API_BASE}/users`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load users');
   }
 
   return response.json();

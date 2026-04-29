@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Feed } from './pages/Feed';
+import { Users } from './pages/Users';
 import { Profile } from './pages/Profile';
 import { ProfileRelationships } from './pages/ProfileRelationships';
 import { TweetDetail } from './pages/TweetDetail';
@@ -28,6 +29,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Users />
               </ProtectedRoute>
             }
           />

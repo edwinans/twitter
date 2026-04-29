@@ -27,6 +27,15 @@ export interface ProfileUser {
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
+  async getUsers() {
+    const users = await this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: listUserSelect,
+    });
+
+    return { users };
+  }
+
   private async getUserOrThrow(username: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },

@@ -22,6 +22,11 @@ function parsePageLimit(pageQuery?: string, limitQuery?: string, defaultLimit = 
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @Get()
+  getUsers() {
+    return this.usersService.getUsers();
+  }
+
   @Get(':username/tweets')
   async getUserTweets(
     @Req() req: RequestWithUser,

@@ -67,6 +67,9 @@ export function Feed() {
           <p style={styles.subtitle}>Welcome, {user?.username}</p>
         </div>
         <div style={styles.userInfo}>
+          <Link to="/users" style={styles.usersLink}>
+            Users
+          </Link>
           <Link to={`/profile/${user?.username}`} style={styles.profileLink}>
             My profile
           </Link>
@@ -122,6 +125,9 @@ const styles = {
     gap: '1rem',
   } as const,
   profileLink: {
+    ...tweetPageLinkStyles,
+  },
+  usersLink: {
     ...tweetPageLinkStyles,
   },
   container: tweetPageStyles.container,
