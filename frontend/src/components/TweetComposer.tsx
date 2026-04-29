@@ -18,9 +18,9 @@ export function TweetComposer({
   placeholder,
   submitLabel,
 }: TweetComposerProps) {
-  const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await onSubmit();
+    void onSubmit();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {

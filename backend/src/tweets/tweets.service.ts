@@ -20,7 +20,7 @@ const tweetSelect = {
 
 @Injectable()
 export class TweetsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private async getTweetOrThrow(tweetId: string) {
     const tweet = await this.prisma.tweet.findUnique({

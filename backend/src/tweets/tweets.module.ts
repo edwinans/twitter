@@ -8,4 +8,4 @@ import { TweetsService } from './tweets.service';
   controllers: [TweetsController],
   providers: [TweetsService],
 })
-export class TweetsModule {}
+export class TweetsModule { }
