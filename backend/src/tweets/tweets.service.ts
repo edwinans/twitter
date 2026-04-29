@@ -80,10 +80,25 @@ export class TweetsService {
     };
   }
 
-  async getFeed(page: number, limit: number) {
+  async getFeed(viewerId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
+
+    const followingRows = await this.prisma.follow.findMany({
+      where: {
+        followerId: viewerId,
+      },
+      select: {
+        followingId: true,
+      },
+    });
+
+    const authorIds = [viewerId, ...followingRows.map((row) => row.followingId)];
+
     const where: Prisma.TweetWhereInput = {
       parentTweetId: null,
+      authorId: {
+        in: authorIds,
+      },
     };
 
     const [total, tweets] = await this.prisma.$transaction([

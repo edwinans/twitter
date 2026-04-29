@@ -39,11 +39,12 @@ export class TweetsController {
 
   @Get()
   getFeed(
+    @Req() req: RequestWithUser,
     @Query('page') pageQuery?: string,
     @Query('limit') limitQuery?: string,
   ) {
     const page = Number(pageQuery) || 1;
     const limit = Number(limitQuery) || 20;
-    return this.tweetsService.getFeed(page, limit);
+    return this.tweetsService.getFeed(req.user.id, page, limit);
   }
 }
