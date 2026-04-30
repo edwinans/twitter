@@ -347,6 +347,79 @@ a {
   color: #e2e2e2;
 }
 
+.tweet-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.tweet-card__actions--secondary {
+  margin-top: 0.7rem;
+}
+
+.tweet-card__like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.tweet-card__like-button:hover:not(:disabled) {
+  color: #ff7a85;
+}
+
+.tweet-card__like-button:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.tweet-card__like-button--liked {
+  color: #ff4d5a;
+}
+
+.tweet-card__like-icon {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  flex: 0 0 auto;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tweet-card__like-icon--outline {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tweet-card__like-icon--filled {
+  fill: currentColor;
+  stroke: none;
+}
+
+.tweet-card__like-count {
+  min-width: 1ch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1rem;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.tweet-card__like-error {
+  color: var(--app-error);
+  font-size: 0.85rem;
+}
+
 .thread-stack {
   display: grid;
   gap: 0.75rem;

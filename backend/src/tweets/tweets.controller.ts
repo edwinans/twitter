@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
 import { CreateTweetDto } from './dto/create-tweet.dto';
@@ -23,18 +23,29 @@ export class TweetsController {
 
   @Get(':id/replies')
   getReplies(
+    @Req() req: RequestWithUser,
     @Param('id') tweetId: string,
     @Query('page') pageQuery?: string,
     @Query('limit') limitQuery?: string,
   ) {
     const page = Number(pageQuery) || 1;
     const limit = Number(limitQuery) || 20;
-    return this.tweetsService.getTweetReplies(tweetId, page, limit);
+    return this.tweetsService.getTweetReplies(req.user.id, tweetId, page, limit);
   }
 
   @Get(':id')
-  getTweet(@Param('id') tweetId: string) {
-    return this.tweetsService.getTweetById(tweetId);
+  getTweet(@Req() req: RequestWithUser, @Param('id') tweetId: string) {
+    return this.tweetsService.getTweetById(req.user.id, tweetId);
+  }
+
+  @Post(':id/like')
+  likeTweet(@Req() req: RequestWithUser, @Param('id') tweetId: string) {
+    return this.tweetsService.likeTweet(req.user.id, tweetId);
+  }
+
+  @Delete(':id/like')
+  unlikeTweet(@Req() req: RequestWithUser, @Param('id') tweetId: string) {
+    return this.tweetsService.unlikeTweet(req.user.id, tweetId);
   }
 
   @Get()

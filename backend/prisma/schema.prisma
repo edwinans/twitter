@@ -14,6 +14,7 @@ model User {
   tweets       Tweet[]
   followers    Follow[]  @relation("UserFollowers")
   following    Follow[]  @relation("UserFollowing")
+  likes        Like[]
 }
 
 model Tweet {
@@ -26,6 +27,7 @@ model Tweet {
   author       User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parentTweet  Tweet?  @relation("TweetReplies", fields: [parentTweetId], references: [id], onDelete: Cascade)
   replies      Tweet[] @relation("TweetReplies")
+  likes        Like[]
 
   @@index([authorId, createdAt])
   @@index([parentTweetId])
@@ -42,4 +44,16 @@ model Follow {
   @@id([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model Like {
+  userId    String
+  tweetId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tweetId])
+  @@index([tweetId])
 }

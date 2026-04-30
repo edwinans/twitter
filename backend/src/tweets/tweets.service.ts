@@ -2,59 +2,58 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTweetDto } from './dto/create-tweet.dto';
-
-const tweetAuthorSelect = {
-  id: true,
-  username: true,
-} as const;
-
-const tweetSelect = {
-  id: true,
-  content: true,
-  parentTweetId: true,
-  createdAt: true,
-  author: {
-    select: tweetAuthorSelect,
-  },
-} as const;
+import { buildTweetSelect, mapTweetView, type TweetView } from './tweet-view';
 
 @Injectable()
 export class TweetsService {
   constructor(private prisma: PrismaService) { }
 
-  private async getTweetOrThrow(tweetId: string) {
+  private async getTweetOrThrow(tweetId: string, viewerId: string): Promise<TweetView> {
     const tweet = await this.prisma.tweet.findUnique({
       where: { id: tweetId },
-      select: tweetSelect,
+      select: buildTweetSelect(viewerId),
     });
 
     if (!tweet) {
       throw new NotFoundException('Tweet not found');
     }
 
-    return tweet;
+    return mapTweetView(tweet);
+  }
+
+  private async ensureTweetExists(tweetId: string) {
+    const tweet = await this.prisma.tweet.findUnique({
+      where: { id: tweetId },
+      select: { id: true },
+    });
+
+    if (!tweet) {
+      throw new NotFoundException('Tweet not found');
+    }
   }
 
   async createTweet(userId: string, dto: CreateTweetDto) {
     if (dto.parentTweetId) {
-      await this.getTweetOrThrow(dto.parentTweetId);
+      await this.ensureTweetExists(dto.parentTweetId);
     }
 
-    return this.prisma.tweet.create({
+    const tweet = await this.prisma.tweet.create({
       data: {
         content: dto.content,
         authorId: userId,
         parentTweetId: dto.parentTweetId,
       },
-      select: tweetSelect,
+      select: buildTweetSelect(userId),
     });
+
+    return mapTweetView(tweet);
   }
 
-  async getTweetById(tweetId: string) {
-    return this.getTweetOrThrow(tweetId);
+  async getTweetById(viewerId: string, tweetId: string) {
+    return this.getTweetOrThrow(tweetId, viewerId);
   }
 
-  async getTweetReplies(parentTweetId: string, page: number, limit: number) {
+  async getTweetReplies(viewerId: string, parentTweetId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
     const where: Prisma.TweetWhereInput = {
       parentTweetId,
@@ -67,12 +66,12 @@ export class TweetsService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        select: tweetSelect,
+        select: buildTweetSelect(viewerId),
       }),
     ]);
 
     return {
-      tweets,
+      tweets: tweets.map(mapTweetView),
       page,
       limit,
       total,
@@ -108,16 +107,53 @@ export class TweetsService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        select: tweetSelect,
+        select: buildTweetSelect(viewerId),
       }),
     ]);
 
     return {
-      tweets,
+      tweets: tweets.map(mapTweetView),
       page,
       limit,
       total,
       totalPages: Math.max(1, Math.ceil(total / limit)),
     };
+  }
+
+  async likeTweet(viewerId: string, tweetId: string) {
+    await this.ensureTweetExists(tweetId);
+
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_tweetId: {
+          userId: viewerId,
+          tweetId,
+        },
+      },
+    });
+
+    if (!existingLike) {
+      await this.prisma.like.create({
+        data: {
+          userId: viewerId,
+          tweetId,
+        },
+      });
+    }
+
+    return this.getTweetById(viewerId, tweetId);
+  }
+
+  async unlikeTweet(viewerId: string, tweetId: string) {
+    await this.ensureTweetExists(tweetId);
+
+    await this.prisma.like.deleteMany({
+      where: {
+        userId: viewerId,
+        tweetId,
+      },
+    });
+
+    return this.getTweetById(viewerId, tweetId);
   }
 }

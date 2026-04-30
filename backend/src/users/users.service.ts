@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { buildTweetSelect, mapTweetView } from '../tweets/tweet-view';
 
 const userSelect = {
   id: true,
@@ -99,24 +100,13 @@ export class UsersService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        select: {
-          id: true,
-          content: true,
-          parentTweetId: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
+        select: buildTweetSelect(viewerId),
       }),
     ]);
 
     return {
       user: profileUser,
-      tweets,
+      tweets: tweets.map(mapTweetView),
       page,
       limit,
       total,

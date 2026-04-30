@@ -33,6 +33,8 @@ export interface Tweet {
   parentTweetId: string | null;
   createdAt: string;
   author: TweetAuthor;
+  likeCount: number;
+  viewerLiked: boolean;
 }
 
 export interface PaginatedTweetsResponse {
@@ -194,6 +196,38 @@ export async function getTweetById(tweetId: string): Promise<Tweet> {
 
   if (!response.ok) {
     throw new Error('Failed to load tweet');
+  }
+
+  return response.json();
+}
+
+export async function likeTweet(tweetId: string): Promise<Tweet> {
+  const response = await fetch(
+    `${API_BASE}/tweets/${encodeURIComponent(tweetId)}/like`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to like tweet');
+  }
+
+  return response.json();
+}
+
+export async function unlikeTweet(tweetId: string): Promise<Tweet> {
+  const response = await fetch(
+    `${API_BASE}/tweets/${encodeURIComponent(tweetId)}/like`,
+    {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to unlike tweet');
   }
 
   return response.json();
