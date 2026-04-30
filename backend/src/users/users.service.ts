@@ -62,13 +62,13 @@ export class UsersService {
       user.id === viewerId
         ? Promise.resolve(false)
         : this.prisma.follow
-            .findFirst({
-              where: {
-                followerId: viewerId,
-                followingId: user.id,
-              },
-            })
-            .then((follow) => !!follow),
+          .findFirst({
+            where: {
+              followerId: viewerId,
+              followingId: user.id,
+            },
+          })
+          .then((follow) => !!follow),
     ]);
 
     return {
@@ -134,35 +134,21 @@ export class UsersService {
     const user = await this.getUserOrThrow(username);
     const skip = (page - 1) * limit;
     const profileUser = await this.buildProfileUser(viewerId, username);
-
-    if (relation === 'followers') {
-      const where: Prisma.FollowWhereInput = { followingId: user.id };
-      const [total, rows] = await this.prisma.$transaction([
-        this.prisma.follow.count({ where }),
-        this.prisma.follow.findMany({
-          where,
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit,
-          select: {
-            follower: {
-              select: listUserSelect,
-            },
+    const where: Prisma.FollowWhereInput =
+      relation === 'followers' ? { followingId: user.id } : { followerId: user.id };
+    const select =
+      relation === 'followers'
+        ? {
+          follower: {
+            select: listUserSelect,
           },
-        }),
-      ]);
+        }
+        : {
+          following: {
+            select: listUserSelect,
+          },
+        };
 
-      return {
-        user: profileUser,
-        users: rows.map((row) => row.follower),
-        page,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
-      };
-    }
-
-    const where: Prisma.FollowWhereInput = { followerId: user.id };
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.follow.count({ where }),
       this.prisma.follow.findMany({
@@ -170,17 +156,13 @@ export class UsersService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        select: {
-          following: {
-            select: listUserSelect,
-          },
-        },
+        select,
       }),
     ]);
 
     return {
       user: profileUser,
-      users: rows.map((row) => row.following),
+      users: rows.map((row) => (relation === 'followers' ? row.follower : row.following)),
       page,
       limit,
       total,

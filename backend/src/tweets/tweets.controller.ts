@@ -29,7 +29,7 @@ export class TweetsController {
   ) {
     const page = Number(pageQuery) || 1;
     const limit = Number(limitQuery) || 20;
-    return this.tweetsService.getTweetReplies(page, limit, tweetId);
+    return this.tweetsService.getTweetReplies(tweetId, page, limit);
   }
 
   @Get(':id')

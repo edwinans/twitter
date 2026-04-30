@@ -54,7 +54,7 @@ export class TweetsService {
     return this.getTweetOrThrow(tweetId);
   }
 
-  async getTweetReplies(page: number, limit: number, parentTweetId: string) {
+  async getTweetReplies(parentTweetId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
     const where: Prisma.TweetWhereInput = {
       parentTweetId,
