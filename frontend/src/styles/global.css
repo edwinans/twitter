@@ -182,6 +182,10 @@ a {
   font-weight: 700;
 }
 
+.user-list__item:hover {
+  text-decoration: underline;
+}
+
 .user-list__item--subtle {
   background-color: var(--app-surface-strong);
 }
@@ -320,7 +324,11 @@ a {
 .tweet-card__author {
   color: var(--app-text-link);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 400;
+}
+
+.tweet-card__author:hover {
+  text-decoration: underline;
 }
 
 .tweet-card__author--secondary {
@@ -340,11 +348,15 @@ a {
 .tweet-card__content {
   margin: 0;
   white-space: pre-wrap;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #d8d8d8;
 }
 
 .tweet-card__content--secondary {
-  font-size: 0.95rem;
-  color: #e2e2e2;
+  font-size: 0.86rem;
+  color: #d0d0d0;
 }
 
 .tweet-card__actions {
