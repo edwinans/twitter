@@ -11,7 +11,6 @@ import {
   getTweetReplies,
   type Tweet,
 } from '../lib/api';
-import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
 
 export function TweetDetail() {
   const { id } = useParams();
@@ -123,34 +122,34 @@ export function TweetDetail() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="app-page">
+      <div className="app-page__header">
         <div>
-          <Link to="/feed" style={styles.backLink}>
+          <Link to="/feed" className="back-link">
             Back to feed
           </Link>
-          <h1 style={styles.title}>Tweet</h1>
+          <h1 className="page-title page-title--spaced">Tweet</h1>
           {tweet && (
-            <p style={styles.subtitle}>
+            <p className="page-subtitle">
               by @{tweet.author.username}
             </p>
           )}
         </div>
-        <div style={styles.userInfo}>
-          <span style={styles.username}>@{user?.username}</span>
-          <button onClick={handleLogout} style={styles.logoutButton}>
+        <div className="header-actions">
+          <span className="user-name">@{user?.username}</span>
+          <button onClick={handleLogout} className="button-primary button-primary--compact">
             Logout
           </button>
         </div>
       </div>
 
-      <div style={styles.content}>
-        {tweetError && <div style={styles.error}>{tweetError}</div>}
+      <div className="app-page__content">
+        {tweetError && <div className="error-text">{tweetError}</div>}
 
         {!tweetError && !tweet && <p>Loading tweet...</p>}
 
         {tweet && ancestors.length > 0 && (
-          <div style={styles.ancestorStack}>
+          <div className="thread-stack">
             {ancestors.map((ancestor) => (
               <TweetCard key={ancestor.id} tweet={ancestor} variant="secondary" />
             ))}
@@ -160,7 +159,7 @@ export function TweetDetail() {
         {tweet && <TweetCard tweet={tweet} />}
 
         {tweet && (
-          <div style={styles.composerSection}>
+          <div className="reply-composer">
             <TweetComposer
               value={content}
               onChange={setContent}
@@ -172,9 +171,9 @@ export function TweetDetail() {
           </div>
         )}
 
-        {tweet && <div style={styles.divider} />}
+        {tweet && <div className="divider" />}
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="error-text">{error}</div>}
 
         {tweet && (
           <TweetTimeline
@@ -193,48 +192,3 @@ export function TweetDetail() {
     </div>
   );
 }
-
-const styles = {
-  header: {
-    ...tweetPageStyles.header,
-    alignItems: 'center',
-  },
-  title: {
-    margin: '0.5rem 0 0',
-  },
-  subtitle: {
-    margin: '0.25rem 0 0',
-    color: '#a0a0a0',
-  },
-  backLink: {
-    ...tweetPageLinkStyles,
-    fontSize: '0.95rem',
-    display: 'inline-block',
-  },
-  container: tweetPageStyles.container,
-  logoutButton: tweetPageStyles.logoutButton,
-  content: tweetPageStyles.content,
-  ancestorStack: {
-    display: 'grid',
-    gap: '0.75rem',
-    marginBottom: '0.9rem',
-  } as const,
-  composerSection: {
-    marginTop: '1rem',
-  } as const,
-  divider: {
-    height: '1px',
-    backgroundColor: '#2e2e2e',
-    margin: '1.25rem 0 1rem',
-  } as const,
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem',
-  } as const,
-  username: {
-    color: '#a0a0a0',
-  } as const,
-  error: tweetPageStyles.error,
-};

@@ -4,7 +4,6 @@ import { createTweet, getFeedTweets, type Tweet } from '../lib/api';
 import { TweetTimeline } from '../components/TweetTimeline';
 import { TweetComposer } from '../components/TweetComposer';
 import { useInfinitePagination } from '../hooks/useInfinitePagination';
-import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
 import { useState } from 'react';
 
 export function Feed() {
@@ -60,26 +59,26 @@ export function Feed() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="app-page">
+      <div className="app-page__header">
         <div>
-          <h1 style={styles.title}>Feed</h1>
-          <p style={styles.subtitle}>Welcome, {user?.username}</p>
+          <h1 className="page-title">Feed</h1>
+          <p className="page-subtitle">Welcome, {user?.username}</p>
         </div>
-        <div style={styles.userInfo}>
-          <Link to="/users" style={styles.usersLink}>
+        <div className="header-actions">
+          <Link to="/users" className="link-primary">
             Users
           </Link>
-          <Link to={`/profile/${user?.username}`} style={styles.profileLink}>
+          <Link to={`/profile/${user?.username}`} className="link-primary">
             My profile
           </Link>
-          <button onClick={handleLogout} style={styles.logoutButton}>
+          <button onClick={handleLogout} className="button-primary button-primary--compact">
             Logout
           </button>
         </div>
       </div>
 
-      <div style={styles.content}>
+      <div className="app-page__content">
         <TweetComposer
           value={content}
           onChange={setContent}
@@ -89,7 +88,7 @@ export function Feed() {
           submitLabel="Post"
         />
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="error-text">{error}</div>}
 
         <TweetTimeline
           tweets={tweets}
@@ -105,33 +104,3 @@ export function Feed() {
     </div>
   );
 }
-
-const styles = {
-  header: {
-    ...tweetPageStyles.header,
-    alignItems: 'center',
-  },
-  title: {
-    margin: 0,
-  },
-  subtitle: {
-    margin: '0.25rem 0 0',
-    color: '#a0a0a0',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem',
-  } as const,
-  profileLink: {
-    ...tweetPageLinkStyles,
-  },
-  usersLink: {
-    ...tweetPageLinkStyles,
-  },
-  container: tweetPageStyles.container,
-  logoutButton: tweetPageStyles.logoutButton,
-  content: tweetPageStyles.content,
-  error: tweetPageStyles.error,
-};

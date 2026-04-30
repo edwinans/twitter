@@ -10,7 +10,6 @@ import {
 } from '../lib/api';
 import { TweetTimeline } from '../components/TweetTimeline';
 import { useInfinitePagination } from '../hooks/useInfinitePagination';
-import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
 
 export function Profile() {
   const { username } = useParams();
@@ -86,44 +85,44 @@ export function Profile() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="app-page">
+      <div className="app-page__header app-page__header--start">
         <div>
-          <Link to="/feed" style={styles.backLink}>
+          <Link to="/feed" className="back-link">
             Back to feed
           </Link>
-          <h1 style={styles.title}>@{username}</h1>
+          <h1 className="page-title page-title--spaced">@{username}</h1>
           {user && (
-            <p style={styles.subtitle}>
+            <p className="page-subtitle">
               Joined {new Date(user.createdAt).toLocaleDateString()}
             </p>
           )}
           {user && (
-            <div style={styles.stats}>
-              <Link to={`/profile/${username}/followers`} style={styles.statLink}>
+            <div className="stats-row">
+              <Link to={`/profile/${username}/followers`} className="stat-link">
                 <strong>{user.followerCount}</strong> Followers
               </Link>
-              <Link to={`/profile/${username}/following`} style={styles.statLink}>
+              <Link to={`/profile/${username}/following`} className="stat-link">
                 <strong>{user.followingCount}</strong> Following
               </Link>
               {!user.isOwnProfile && (
-                <button onClick={handleFollowToggle} style={styles.followButton}>
+                <button onClick={handleFollowToggle} className="button-primary button-primary--compact">
                   {user.isFollowing ? 'Unfollow' : 'Follow'}
                 </button>
               )}
             </div>
           )}
         </div>
-        <div style={styles.actions}>
-          <button onClick={handleLogout} style={styles.logoutButton}>
+        <div className="header-actions">
+          <button onClick={handleLogout} className="button-primary button-primary--compact">
             Logout
           </button>
         </div>
       </div>
 
-      <div style={styles.content}>
-        {error && <div style={styles.error}>{error}</div>}
-        {followError && <div style={styles.error}>{followError}</div>}
+      <div className="app-page__content">
+        {error && <div className="error-text">{error}</div>}
+        {followError && <div className="error-text">{followError}</div>}
 
         <TweetTimeline
           tweets={tweets}
@@ -139,51 +138,3 @@ export function Profile() {
     </div>
   );
 }
-
-const styles = {
-  header: {
-    ...tweetPageStyles.header,
-    alignItems: 'flex-start',
-  },
-  title: {
-    margin: '0.5rem 0 0',
-  },
-  stats: {
-    display: 'flex',
-    gap: '1rem',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginTop: '0.75rem',
-  } as const,
-  statLink: {
-    ...tweetPageLinkStyles,
-    display: 'inline-flex',
-    gap: '0.35rem',
-    alignItems: 'baseline',
-  },
-  subtitle: {
-    margin: '0.25rem 0 0',
-    color: '#a0a0a0',
-  },
-  actions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
-    flexWrap: 'wrap',
-  } as const,
-  followButton: {
-    ...tweetPageStyles.logoutButton,
-    display: 'inline-flex',
-    alignItems: 'center',
-    lineHeight: 1,
-  },
-  backLink: {
-    ...tweetPageLinkStyles,
-    fontSize: '0.95rem',
-    display: 'inline-block',
-  },
-  container: tweetPageStyles.container,
-  logoutButton: tweetPageStyles.logoutButton,
-  content: tweetPageStyles.content,
-  error: tweetPageStyles.error,
-};

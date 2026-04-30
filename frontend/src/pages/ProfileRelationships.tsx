@@ -85,11 +85,11 @@ export function ProfileRelationships({ kind }: ProfileRelationshipsProps) {
       sentinelRef={sentinelRef}
       headerChildren={
         user ? (
-          <div style={styles.stats}>
-            <Link to={`/profile/${username}/followers`} style={styles.statLink}>
+          <div className="stats-row">
+            <Link to={`/profile/${username}/followers`} className="stat-link">
               <strong>{user.followerCount}</strong> Followers
             </Link>
-            <Link to={`/profile/${username}/following`} style={styles.statLink}>
+            <Link to={`/profile/${username}/following`} className="stat-link">
               <strong>{user.followingCount}</strong> Following
             </Link>
           </div>
@@ -98,19 +98,3 @@ export function ProfileRelationships({ kind }: ProfileRelationshipsProps) {
     />
   );
 }
-
-const styles = {
-  stats: {
-    display: 'flex',
-    gap: '1rem',
-    flexWrap: 'wrap',
-    marginTop: '0.75rem',
-  } as const,
-  statLink: {
-    color: '#1d9bf0',
-    textDecoration: 'none',
-    display: 'inline-flex',
-    gap: '0.35rem',
-    alignItems: 'baseline',
-  },
-} as const;

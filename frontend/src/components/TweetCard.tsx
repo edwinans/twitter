@@ -26,88 +26,37 @@ export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
 
   return (
     <article
-      style={{
-        ...styles.card,
-        ...(isSecondary ? styles.secondaryCard : styles.primaryCard),
-      }}
+      className={isSecondary ? 'tweet-card tweet-card--secondary' : 'tweet-card'}
       role="link"
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
     >
-      <div style={{ ...styles.header, ...(isSecondary ? styles.secondaryHeader : null) }}>
+      <div className={isSecondary ? 'tweet-card__header tweet-card__header--secondary' : 'tweet-card__header'}>
         <Link
           to={`/profile/${tweet.author.username}`}
-          style={{
-            ...styles.authorLink,
-            ...(isSecondary ? styles.secondaryAuthorLink : null),
-          }}
+          className={
+            isSecondary
+              ? 'tweet-card__author tweet-card__author--secondary'
+              : 'tweet-card__author'
+          }
           onClick={(event) => event.stopPropagation()}
         >
           @{tweet.author.username}
         </Link>
-        <span style={{ ...styles.timestamp, ...(isSecondary ? styles.secondaryTimestamp : null) }}>
+        <span
+          className={
+            isSecondary
+              ? 'tweet-card__timestamp tweet-card__timestamp--secondary'
+              : 'tweet-card__timestamp'
+          }
+        >
           {new Date(tweet.createdAt).toLocaleString()}
         </span>
       </div>
-      <p style={{ ...styles.content, ...(isSecondary ? styles.secondaryContent : null) }}>
+      <p className={isSecondary ? 'tweet-card__content tweet-card__content--secondary' : 'tweet-card__content'}>
         {tweet.content}
       </p>
     </article>
   );
 }
-
-const styles = {
-  card: {
-    padding: '1rem',
-    border: '1px solid #333',
-    borderRadius: '1rem',
-    backgroundColor: '#202020',
-    cursor: 'pointer',
-    outline: 'none',
-  },
-  primaryCard: {
-    boxShadow: 'none',
-  },
-  secondaryCard: {
-    marginLeft: '1.1rem',
-    borderColor: '#2d2d2d',
-    backgroundColor: '#171717',
-    padding: '0.8rem 0.9rem',
-    borderRadius: '0.85rem',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '1rem',
-    marginBottom: '0.75rem',
-  },
-  secondaryHeader: {
-    marginBottom: '0.5rem',
-  },
-  authorLink: {
-    color: '#1d9bf0',
-    textDecoration: 'none',
-    fontWeight: 'bold' as const,
-  },
-  secondaryAuthorLink: {
-    fontSize: '0.95rem',
-    color: '#88bff2',
-  },
-  timestamp: {
-    color: '#888',
-    fontSize: '0.875rem',
-  },
-  secondaryTimestamp: {
-    fontSize: '0.8rem',
-  },
-  content: {
-    margin: 0,
-    whiteSpace: 'pre-wrap' as const,
-  },
-  secondaryContent: {
-    fontSize: '0.95rem',
-    color: '#e2e2e2',
-  },
-};

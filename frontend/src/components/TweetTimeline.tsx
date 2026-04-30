@@ -1,7 +1,6 @@
 import { type RefObject } from 'react';
 import { TweetCard } from './TweetCard';
 import type { Tweet } from '../lib/api';
-import { tweetPageStyles } from '../styles/tweetPageStyles';
 
 interface TweetTimelineProps {
   tweets: Tweet[];
@@ -36,15 +35,15 @@ export function TweetTimeline({
 
   return (
     <>
-      <div style={tweetPageStyles.timeline}>
+      <div className="timeline">
         {tweets.map((tweet) => (
           <TweetCard key={tweet.id} tweet={tweet} variant={tweetVariant} />
         ))}
       </div>
-      {isLoadingMore && <p style={tweetPageStyles.loadingMore}>Loading more...</p>}
-      {hasMore && <div ref={sentinelRef} style={tweetPageStyles.sentinel} />}
+      {isLoadingMore && <p className="loading-more">Loading more...</p>}
+      {hasMore && <div ref={sentinelRef} className="sentinel" />}
       {!hasMore && totalPages > 1 && (
-        <p style={tweetPageStyles.endMessage}>No more tweets.</p>
+        <p className="end-message">No more tweets.</p>
       )}
     </>
   );

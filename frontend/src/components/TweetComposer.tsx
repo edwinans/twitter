@@ -1,5 +1,4 @@
 import { type KeyboardEvent, type SyntheticEvent } from 'react';
-import { tweetPageStyles } from '../styles/tweetPageStyles';
 
 interface TweetComposerProps {
   value: string;
@@ -33,19 +32,19 @@ export function TweetComposer({
   };
 
   return (
-    <form onSubmit={handleSubmit} style={tweetPageStyles.composer}>
+    <form onSubmit={handleSubmit} className="tweet-composer">
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        style={tweetPageStyles.textarea}
+        className="tweet-textarea"
         maxLength={280}
         rows={4}
       />
-      <div style={tweetPageStyles.composerFooter}>
-        <span style={tweetPageStyles.counter}>{value.length}/280</span>
-        <button type="submit" style={tweetPageStyles.postButton} disabled={isSubmitting}>
+      <div className="tweet-composer__footer">
+        <span className="tweet-counter">{value.length}/280</span>
+        <button type="submit" className="button-primary" disabled={isSubmitting}>
           {submitLabel}
         </button>
       </div>

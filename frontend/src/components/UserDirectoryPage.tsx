@@ -1,7 +1,6 @@
 import type { ReactNode, RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { type User } from '../lib/api';
-import { tweetPageLinkStyles, tweetPageStyles } from '../styles/tweetPageStyles';
 
 interface UserDirectoryPageProps {
   backTo: string;
@@ -41,23 +40,23 @@ export function UserDirectoryPage({
   endMessage = 'No more users.',
 }: UserDirectoryPageProps) {
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="app-page">
+      <div className="app-page__header app-page__header--start">
         <div>
-          <Link to={backTo} style={styles.backLink}>
+          <Link to={backTo} className="back-link">
             {backLabel}
           </Link>
-          <h1 style={styles.title}>{title}</h1>
-          {subtitle && <p style={styles.subtitle}>{subtitle}</p>}
+          <h1 className="page-title page-title--spaced">{title}</h1>
+          {subtitle && <p className="page-subtitle">{subtitle}</p>}
           {headerChildren}
         </div>
-        <button onClick={onLogout} style={styles.logoutButton}>
+        <button onClick={onLogout} className="button-primary button-primary--compact">
           Logout
         </button>
       </div>
 
-      <div style={styles.content}>
-        {error && <div style={styles.error}>{error}</div>}
+      <div className="app-page__content">
+        {error && <div className="error-text">{error}</div>}
 
         {isLoading ? (
           <p>{loadingMessage}</p>
@@ -65,58 +64,19 @@ export function UserDirectoryPage({
           <p>{emptyMessage}</p>
         ) : (
           <>
-            <div style={styles.list}>
+            <div className="user-list">
               {users.map((user) => (
-                <Link key={user.id} to={`/profile/${user.username}`} style={styles.userLink}>
+                <Link key={user.id} to={`/profile/${user.username}`} className="user-list__item">
                   @{user.username}
                 </Link>
               ))}
             </div>
-            {isLoadingMore && <p style={styles.loadingMore}>Loading more...</p>}
-            {hasMore && <div ref={sentinelRef} style={styles.sentinel} />}
-            {!hasMore && totalPages && totalPages > 1 && <p style={styles.endMessage}>{endMessage}</p>}
+            {isLoadingMore && <p className="loading-more">Loading more...</p>}
+            {hasMore && <div ref={sentinelRef} className="sentinel" />}
+            {!hasMore && totalPages && totalPages > 1 && <p className="end-message">{endMessage}</p>}
           </>
         )}
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: tweetPageStyles.container,
-  header: {
-    ...tweetPageStyles.header,
-    alignItems: 'flex-start',
-  },
-  backLink: {
-    ...tweetPageLinkStyles,
-    fontSize: '0.95rem',
-    display: 'inline-block',
-  },
-  title: {
-    margin: '0.5rem 0 0',
-  },
-  subtitle: {
-    margin: '0.25rem 0 0',
-    color: '#a0a0a0',
-  },
-  logoutButton: tweetPageStyles.logoutButton,
-  content: tweetPageStyles.content,
-  error: tweetPageStyles.error,
-  list: {
-    display: 'grid',
-    gap: '0.75rem',
-  },
-  userLink: {
-    padding: '0.9rem 1rem',
-    border: '1px solid #333',
-    borderRadius: '0.9rem',
-    backgroundColor: '#202020',
-    color: '#1d9bf0',
-    textDecoration: 'none',
-    fontWeight: 'bold',
-  },
-  loadingMore: tweetPageStyles.loadingMore,
-  sentinel: tweetPageStyles.sentinel,
-  endMessage: tweetPageStyles.endMessage,
-} as const;
