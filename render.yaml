@@ -15,7 +15,7 @@ services:
           property: connectionString
 
   - type: web
-    name: twitter-frontend
+    name: edtwitter
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
