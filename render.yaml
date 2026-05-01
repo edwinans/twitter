@@ -4,7 +4,7 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
+    buildCommand: npm ci && npx prisma generate && npx prisma db push && npm run build
     startCommand: npm run start:prod
     envVars:
       - key: JWT_SECRET
