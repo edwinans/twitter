@@ -2,6 +2,8 @@
 
 A simple Twitter-like app built with NestJS backend and React frontend.
 
+https://edtwitter.onrender.com
+
 ## Stack
 
 - **Backend**: NestJS, TypeScript, Prisma, PostgreSQL
