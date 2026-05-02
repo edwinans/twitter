@@ -31,10 +31,10 @@ export interface Tweet {
   id: string;
   content: string;
   parentTweetId: string | null;
+  replyCount: number;
   createdAt: string;
   author: TweetAuthor;
   likeCount: number;
-  replyCount?: number;
   viewerLiked: boolean;
 }
 

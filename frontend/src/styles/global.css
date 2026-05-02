@@ -449,7 +449,6 @@ a {
   stroke-linejoin: round;
   fill: none;
   stroke: currentColor;
-  transform: translateY(0.5px);
 }
 
 .tweet-card__count {

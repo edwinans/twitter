@@ -33,20 +33,40 @@ export class TweetsService {
   }
 
   async createTweet(userId: string, dto: CreateTweetDto) {
-    if (dto.parentTweetId) {
-      await this.ensureTweetExists(dto.parentTweetId);
-    }
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.parentTweetId) {
+        const parentTweet = await tx.tweet.findUnique({
+          where: { id: dto.parentTweetId },
+          select: { id: true },
+        });
 
-    const tweet = await this.prisma.tweet.create({
-      data: {
-        content: dto.content,
-        authorId: userId,
-        parentTweetId: dto.parentTweetId,
-      },
-      select: buildTweetSelect(userId),
+        if (!parentTweet) {
+          throw new NotFoundException('Tweet not found');
+        }
+      }
+
+      const tweet = await tx.tweet.create({
+        data: {
+          content: dto.content,
+          authorId: userId,
+          parentTweetId: dto.parentTweetId,
+        },
+        select: buildTweetSelect(userId),
+      });
+
+      if (dto.parentTweetId) {
+        await tx.tweet.update({
+          where: { id: dto.parentTweetId },
+          data: {
+            replyCount: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
+      return mapTweetView(tweet);
     });
-
-    return mapTweetView(tweet);
   }
 
   async getTweetById(viewerId: string, tweetId: string) {

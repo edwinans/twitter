@@ -10,6 +10,7 @@ export function buildTweetSelect(viewerId: string) {
     id: true,
     content: true,
     parentTweetId: true,
+    replyCount: true,
     createdAt: true,
     author: {
       select: tweetAuthorSelect,
@@ -38,6 +39,7 @@ export interface TweetView {
   id: string;
   content: string;
   parentTweetId: string | null;
+  replyCount: number;
   createdAt: Date;
   author: {
     id: string;
@@ -52,6 +54,7 @@ export function mapTweetView(tweet: TweetViewRecord): TweetView {
     id: tweet.id,
     content: tweet.content,
     parentTweetId: tweet.parentTweetId,
+    replyCount: tweet.replyCount,
     createdAt: tweet.createdAt,
     author: tweet.author,
     likeCount: tweet._count.likes,

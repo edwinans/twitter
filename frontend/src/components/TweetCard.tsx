@@ -49,7 +49,7 @@ export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
   const [currentTweet, setCurrentTweet] = useState(tweet);
   const [isUpdatingLike, setIsUpdatingLike] = useState(false);
   const [likeError, setLikeError] = useState('');
-  const replyCount = currentTweet.replyCount ?? 0;
+  const replyCount = currentTweet.replyCount;
 
   useEffect(() => {
     setCurrentTweet(tweet);

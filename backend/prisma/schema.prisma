@@ -22,6 +22,7 @@ model Tweet {
   content       String
   authorId      String
   parentTweetId String?
+  replyCount    Int      @default(0)
   createdAt     DateTime @default(now())
 
   author       User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
