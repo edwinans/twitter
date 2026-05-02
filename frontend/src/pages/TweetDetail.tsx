@@ -112,6 +112,14 @@ export function TweetDetail() {
 
     try {
       const reply = await createReply(trimmedContent, tweet.id);
+      setTweet((currentTweet) =>
+        currentTweet
+          ? {
+              ...currentTweet,
+              replyCount: currentTweet.replyCount + 1,
+            }
+          : currentTweet
+      );
       prependItem(reply);
       setContent('');
     } catch {
