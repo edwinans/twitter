@@ -34,6 +34,7 @@ export interface Tweet {
   createdAt: string;
   author: TweetAuthor;
   likeCount: number;
+  replyCount?: number;
   viewerLiked: boolean;
 }
 

@@ -31,12 +31,25 @@ function HeartIcon({ filled }: { filled: boolean }) {
   );
 }
 
+function ReplyIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="tweet-card__reply-icon"
+    >
+      <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />
+    </svg>
+  );
+}
+
 export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
   const navigate = useNavigate();
   const isSecondary = variant === 'secondary';
   const [currentTweet, setCurrentTweet] = useState(tweet);
   const [isUpdatingLike, setIsUpdatingLike] = useState(false);
   const [likeError, setLikeError] = useState('');
+  const replyCount = currentTweet.replyCount ?? 0;
 
   useEffect(() => {
     setCurrentTweet(tweet);
@@ -141,7 +154,15 @@ export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
           aria-pressed={currentTweet.viewerLiked}
         >
           <HeartIcon filled={currentTweet.viewerLiked} />
-          <span className="tweet-card__like-count">{currentTweet.likeCount}</span>
+          <span className="tweet-card__count">{currentTweet.likeCount}</span>
+        </button>
+        <button
+          type="button"
+          className="tweet-card__reply-button"
+          aria-label={`${replyCount} replies`}
+        >
+          <ReplyIcon />
+          {replyCount > 0 && <span className="tweet-card__count">{replyCount}</span>}
         </button>
         {likeError && <span className="tweet-card__like-error">{likeError}</span>}
       </div>

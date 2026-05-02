@@ -384,6 +384,28 @@ a {
   line-height: 1;
 }
 
+.tweet-card__reply-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.tweet-card__reply-button:hover {
+  color: #3b82f6;
+}
+
+.tweet-card__reply-button:active {
+  color: #2563eb;
+}
+
 .tweet-card__like-button:hover:not(:disabled) {
   color: #ff7a85;
 }
@@ -417,7 +439,20 @@ a {
   stroke: none;
 }
 
-.tweet-card__like-count {
+.tweet-card__reply-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  display: block;
+  flex: 0 0 auto;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke: currentColor;
+  transform: translateY(0.5px);
+}
+
+.tweet-card__count {
   min-width: 1ch;
   display: inline-flex;
   align-items: center;
