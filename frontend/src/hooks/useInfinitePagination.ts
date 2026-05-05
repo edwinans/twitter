@@ -57,7 +57,7 @@ export function useInfinitePagination<T>({
           page === 1 ? response.items : [...currentItems, ...response.items]
         );
         setTotalPages(response.totalPages);
-        setHasMore(page < response.totalPages && response.items.length > 0);
+        setHasMore(page < response.totalPages);
       } catch {
         if (!isMounted) {
           return;
@@ -119,7 +119,6 @@ export function useInfinitePagination<T>({
     isLoading,
     isLoadingMore,
     hasMore,
-    page,
     totalPages,
     sentinelRef,
     prependItem,
