@@ -25,6 +25,7 @@ export function Profile() {
     hasMore,
     totalPages,
     sentinelRef,
+    removeItem,
   } = useInfinitePagination<Tweet>({
     resetKey: username ?? '',
     errorMessage: 'Failed to load profile',
@@ -133,6 +134,7 @@ export function Profile() {
           loadingMessage="Loading profile..."
           emptyMessage="No tweets yet."
           sentinelRef={sentinelRef}
+          onDeleteTweet={(tweetId) => removeItem((tweet) => tweet.id === tweetId)}
         />
       </div>
     </div>

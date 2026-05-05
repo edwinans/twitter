@@ -1,10 +1,12 @@
-import { useEffect, useState, type MouseEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { likeTweet, unlikeTweet, type Tweet } from '../lib/api';
+import { deleteTweet, likeTweet, unlikeTweet, type Tweet } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface TweetCardProps {
   tweet: Tweet;
   variant?: 'primary' | 'secondary';
+  onDeleteTweet?: (tweetId: string) => void;
 }
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -43,13 +45,14 @@ function ReplyIcon() {
   );
 }
 
-export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
+export function TweetCard({ tweet, variant = 'primary', onDeleteTweet }: TweetCardProps) {
   const navigate = useNavigate();
   const isSecondary = variant === 'secondary';
   const [currentTweet, setCurrentTweet] = useState(tweet);
   const [isUpdatingLike, setIsUpdatingLike] = useState(false);
   const [likeError, setLikeError] = useState('');
   const replyCount = currentTweet.replyCount;
+  const { user } = useAuth();
 
   useEffect(() => {
     setCurrentTweet(tweet);
@@ -68,6 +71,13 @@ export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
 
     event.preventDefault();
     navigate(`/tweet/${currentTweet.id}`);
+  };
+
+  const handleDeleteClick = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    await deleteTweet(currentTweet.id);
+    onDeleteTweet?.(currentTweet.id);
   };
 
   const handleLikeClick = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -136,6 +146,11 @@ export function TweetCard({ tweet, variant = 'primary' }: TweetCardProps) {
           }
         >
           {new Date(currentTweet.createdAt).toLocaleString()}
+          {user?.id === currentTweet.author.id && (
+            <button type="button" className="tweet-delete" onClick={handleDeleteClick}>
+              delete
+            </button>
+          )}
         </span>
       </div>
       <p className={isSecondary ? 'tweet-card__content tweet-card__content--secondary' : 'tweet-card__content'}>

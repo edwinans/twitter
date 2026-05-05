@@ -371,6 +371,13 @@ a {
   margin-top: 0.7rem;
 }
 
+.tweet-delete {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.75rem;
+  background-color: red
+}
+
 .tweet-card__like-button {
   display: inline-flex;
   align-items: center;

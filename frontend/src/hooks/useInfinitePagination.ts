@@ -113,6 +113,10 @@ export function useInfinitePagination<T>({
     setItems((currentItems) => [item, ...currentItems]);
   };
 
+  const removeItem = (isRemoved: (item: T) => boolean) => {
+    setItems((currentItems) => currentItems.filter((item) => !isRemoved(item)));
+  };
+
   return {
     items,
     error,
@@ -122,6 +126,7 @@ export function useInfinitePagination<T>({
     totalPages,
     sentinelRef,
     prependItem,
+    removeItem,
     setError,
   };
 }

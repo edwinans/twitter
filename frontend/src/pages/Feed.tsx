@@ -20,6 +20,7 @@ export function Feed() {
     totalPages,
     sentinelRef,
     prependItem,
+    removeItem,
     setError,
   } = useInfinitePagination<Tweet>({
     resetKey: 'feed',
@@ -99,6 +100,7 @@ export function Feed() {
           loadingMessage="Loading tweets..."
           emptyMessage="No tweets yet."
           sentinelRef={sentinelRef}
+          onDeleteTweet={(tweetId) => removeItem((tweet) => tweet.id === tweetId)}
         />
       </div>
     </div>

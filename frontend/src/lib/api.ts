@@ -234,6 +234,20 @@ export async function unlikeTweet(tweetId: string): Promise<Tweet> {
   return response.json();
 }
 
+export async function deleteTweet(tweetId: string): Promise<void> {
+  const response = await fetch(
+    `${API_BASE}/tweets/${encodeURIComponent(tweetId)}`,
+    {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to delete tweet');
+  }
+}
+
 export async function getTweetReplies(
   tweetId: string,
   page = 1,

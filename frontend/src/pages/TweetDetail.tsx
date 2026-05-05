@@ -30,6 +30,7 @@ export function TweetDetail() {
     totalPages,
     sentinelRef,
     prependItem,
+    removeItem,
     setError,
   } = useInfinitePagination<Tweet>({
     resetKey: id ?? '',
@@ -159,12 +160,29 @@ export function TweetDetail() {
         {tweet && ancestors.length > 0 && (
           <div className="thread-stack">
             {ancestors.map((ancestor) => (
-              <TweetCard key={ancestor.id} tweet={ancestor} variant="secondary" />
+              <TweetCard
+                key={ancestor.id}
+                tweet={ancestor}
+                variant="secondary"
+                onDeleteTweet={(tweetId) =>
+                  setAncestors((currentAncestors) =>
+                    currentAncestors.filter((ancestor) => ancestor.id !== tweetId)
+                  )
+                }
+              />
             ))}
           </div>
         )}
 
-        {tweet && <TweetCard tweet={tweet} />}
+        {tweet && (
+          <TweetCard
+            tweet={tweet}
+            onDeleteTweet={() => {
+              setTweet(null);
+              navigate('/feed');
+            }}
+          />
+        )}
 
         {tweet && (
           <div className="reply-composer">
@@ -194,6 +212,17 @@ export function TweetDetail() {
             emptyMessage="No replies yet."
             sentinelRef={sentinelRef}
             tweetVariant="secondary"
+            onDeleteTweet={(tweetId) => {
+              removeItem((reply) => reply.id === tweetId);
+              setTweet((currentTweet) =>
+                currentTweet
+                  ? {
+                      ...currentTweet,
+                      replyCount: Math.max(0, currentTweet.replyCount - 1),
+                    }
+                  : currentTweet
+              );
+            }}
           />
         )}
       </div>

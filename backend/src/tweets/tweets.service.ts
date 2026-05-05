@@ -6,7 +6,7 @@ import { buildTweetSelect, mapTweetView, type TweetView } from './tweet-view';
 
 @Injectable()
 export class TweetsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private async getTweetOrThrow(tweetId: string, viewerId: string): Promise<TweetView> {
     const tweet = await this.prisma.tweet.findUnique({
@@ -175,5 +175,15 @@ export class TweetsService {
     });
 
     return this.getTweetById(viewerId, tweetId);
+  }
+
+
+  async deleteTweet(viewerId: string, tweetId: string) {
+    await this.prisma.tweet.deleteMany({
+      where: {
+        authorId: viewerId,
+        id: tweetId,
+      },
+    });
   }
 }

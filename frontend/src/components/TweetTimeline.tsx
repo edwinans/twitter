@@ -1,4 +1,4 @@
-import { type RefObject } from 'react';
+import type { RefObject } from 'react';
 import { TweetCard } from './TweetCard';
 import type { Tweet } from '../lib/api';
 
@@ -12,6 +12,7 @@ interface TweetTimelineProps {
   emptyMessage: string;
   sentinelRef: RefObject<HTMLDivElement | null>;
   tweetVariant?: 'primary' | 'secondary';
+  onDeleteTweet?: (tweetId: string) => void;
 }
 
 export function TweetTimeline({
@@ -24,6 +25,7 @@ export function TweetTimeline({
   emptyMessage,
   sentinelRef,
   tweetVariant = 'primary',
+  onDeleteTweet,
 }: TweetTimelineProps) {
   if (isLoading) {
     return <p>{loadingMessage}</p>;
@@ -37,7 +39,12 @@ export function TweetTimeline({
     <>
       <div className="timeline">
         {tweets.map((tweet) => (
-          <TweetCard key={tweet.id} tweet={tweet} variant={tweetVariant} />
+          <TweetCard
+            key={tweet.id}
+            tweet={tweet}
+            variant={tweetVariant}
+            onDeleteTweet={onDeleteTweet}
+          />
         ))}
       </div>
       {isLoadingMore && <p className="loading-more">Loading more...</p>}

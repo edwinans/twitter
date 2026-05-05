@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
 import { CreateTweetDto } from './dto/create-tweet.dto';
@@ -19,6 +19,12 @@ export class TweetsController {
   @Post()
   create(@Req() req: RequestWithUser, @Body() dto: CreateTweetDto) {
     return this.tweetsService.createTweet(req.user.id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  delete(@Req() req: RequestWithUser, @Param('id') tweetId: string) {
+    return this.tweetsService.deleteTweet(req.user.id, tweetId);
   }
 
   @Get(':id/replies')
