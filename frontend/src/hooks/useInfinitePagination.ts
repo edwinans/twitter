@@ -24,11 +24,6 @@ export function useInfinitePagination<T>({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const loadPageRef = useRef(loadPage);
-
-  useEffect(() => {
-    loadPageRef.current = loadPage;
-  }, [loadPage]);
 
   useEffect(() => {
     setItems([]);
@@ -53,7 +48,7 @@ export function useInfinitePagination<T>({
       }
 
       try {
-        const response = await loadPageRef.current(page);
+        const response = await loadPage(page);
         if (!isMounted) {
           return;
         }
